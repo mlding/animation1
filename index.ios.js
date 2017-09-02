@@ -51,6 +51,11 @@ export default class animation extends Component {
       toValue: 150,
       duration: 1500
     }).start();
+
+    Animated.timing(this.interpolateAnimatedValue, {
+      toValue: 1,
+      duration: 1500
+    }).start();
   }
 
   handlePressIn() {
@@ -91,6 +96,19 @@ export default class animation extends Component {
       ]
     };
 
+    const interpolateRotation = this.interpolateAnimatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0rad', '10rad']
+    });
+
+    const rotationAnimatedStyle = {
+      transform: [
+        {
+          rotate: interpolateRotation
+        }
+      ]
+    };
+
     return (
       <View style={styles.container}>
         <Animated.View style={[styles.box, animatedStyle]} />
@@ -111,6 +129,10 @@ export default class animation extends Component {
         </Animated.View>
 
         <Animated.View style={[styles.interpolateBox, interpolateAnimatedStyle]} />
+
+        <Animated.View style={[styles.box, rotationAnimatedStyle]}>
+          <Text style={styles.text}>Spinner</Text>
+        </Animated.View>
       </View>
     );
   }
