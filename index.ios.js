@@ -38,6 +38,9 @@ export default class animation extends Component {
       });
 
       this.interpolateAnimatedValue = new Animated.Value(0);
+
+      this.animatedValue1 = new Animated.Value(0);
+      this.animatedValue2 = new Animated.Value(1);
   }
 
   componentDidMount() {
@@ -56,6 +59,23 @@ export default class animation extends Component {
       toValue: 1,
       duration: 1500
     }).start();
+
+    Animated.sequence([
+      Animated.timing(this.animatedValue1, {
+        toValue: 150,
+        duration: 1000
+      }),
+      Animated.spring(this.animatedValue2, {
+        toValue: 3
+      }),
+      Animated.timing(this.animatedValue1, {
+        toValue: 0,
+        duration: 1000
+      }),
+      Animated.spring(this.animatedValue2, {
+        toValue: 0.5
+      })
+    ]).start();
   }
 
   handlePressIn() {
@@ -109,6 +129,17 @@ export default class animation extends Component {
       ]
     };
 
+    const newAnimatedStyle = {
+      transform: [
+        {
+          translateY: this.animatedValue1
+        },
+        {
+          scale: this.animatedValue2
+        }
+      ]
+    };
+
     return (
       <View style={styles.container}>
         <Animated.View style={[styles.box, animatedStyle]} />
@@ -133,6 +164,8 @@ export default class animation extends Component {
         <Animated.View style={[styles.box, rotationAnimatedStyle]}>
           <Text style={styles.text}>Spinner</Text>
         </Animated.View>
+
+        <Animated.View style={[styles.box, newAnimatedStyle]} />
       </View>
     );
   }
