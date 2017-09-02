@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Text, View, Animated, Easing, TouchableWithoutFeedback } from 'react-native';
+import { AppRegistry, StyleSheet, Text, View, Animated, Easing, TouchableWithoutFeedback, PanResponder } from 'react-native';
 
 export default class animation extends Component {
   constructor(props) {
@@ -11,6 +11,31 @@ export default class animation extends Component {
   componentWillMount() {
       this.animatedValue = new Animated.Value(100);
       this.pressAnimatedValue = new Animated.Value(1);
+
+      this.dragAnimatedValue = new Animated.ValueXY();
+      this._value = {x: 0, y: 0};
+      this.dragAnimatedValue.addListener(value => {this._value = value});
+      this.panResponder = PanResponder.create({
+        onStartShouldSetPanResponder: (evt, gestureState) => true,
+        onMoveShouldSetPanResponder: (evt, gestureState) => true,
+        onPanResponderGrant: (e, gestureState) => {
+          this.dragAnimatedValue.setOffset({
+            x: this._value.x,
+            y: this._value.y
+          });
+          this.dragAnimatedValue.setValue({x: 0, y: 0});
+        },
+        onPanResponderMove: Animated.event([
+          null, {dx: this.dragAnimatedValue.x, dy: this.dragAnimatedValue.y}
+        ]),
+        onPanResponderRelease: (e, gestureState) => {
+          this.dragAnimatedValue.flattenOffset();
+          Animated.decay(this.dragAnimatedValue, {
+            deceleration: 0.997,
+            velocity: {x: gestureState.vx, y: gestureState.vy}
+          }).start();
+        }
+      });
   }
 
   componentDidMount() {
@@ -41,6 +66,10 @@ export default class animation extends Component {
       transform: [{scale: this.pressAnimatedValue}]
     };
 
+    const dragAnimatedStyle = {
+      transform: this.dragAnimatedValue.getTranslateTransform()
+    };
+
     return (
       <View style={styles.container}>
         <Animated.View style={[styles.box, animatedStyle]} />
@@ -52,6 +81,13 @@ export default class animation extends Component {
             <Text style={styles.text}>Press me</Text>
           </Animated.View>
         </TouchableWithoutFeedback>
+
+        <Animated.View
+          style={[styles.box, dragAnimatedStyle]}
+          {...this.panResponder.panHandlers}
+        >
+          <Text style={styles.text}>Dray me</Text>
+        </Animated.View>
       </View>
     );
   }
@@ -67,12 +103,14 @@ const styles = StyleSheet.create({
   box: {
     backgroundColor: 'black',
     width: 100,
-    height: 100
+    height: 100,
+    marginBottom: 100
   },
   button: {
     backgroundColor: 'black',
     width: 100,
-    height: 50
+    height: 50,
+    marginBottom: 100
   },
   text: {
     color: 'white',
