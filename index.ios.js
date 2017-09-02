@@ -36,6 +36,8 @@ export default class animation extends Component {
           }).start();
         }
       });
+
+      this.interpolateAnimatedValue = new Animated.Value(0);
   }
 
   componentDidMount() {
@@ -44,6 +46,11 @@ export default class animation extends Component {
       duration: 1000,
       easing: Easing.bounce
     }).start()
+
+    Animated.timing(this.interpolateAnimatedValue, {
+      toValue: 150,
+      duration: 1500
+    }).start();
   }
 
   handlePressIn() {
@@ -70,6 +77,20 @@ export default class animation extends Component {
       transform: this.dragAnimatedValue.getTranslateTransform()
     };
 
+    const interpolateColor = this.interpolateAnimatedValue.interpolate({
+      inputRange: [0, 150],
+      outputRange: ['rgb(0, 0, 0)', 'rgb(51, 250, 170)']
+    });
+
+    const interpolateAnimatedStyle = {
+      backgroundColor: interpolateColor,
+      transform: [
+        {
+          translateY: this.interpolateAnimatedValue
+        }
+      ]
+    };
+
     return (
       <View style={styles.container}>
         <Animated.View style={[styles.box, animatedStyle]} />
@@ -86,8 +107,10 @@ export default class animation extends Component {
           style={[styles.box, dragAnimatedStyle]}
           {...this.panResponder.panHandlers}
         >
-          <Text style={styles.text}>Dray me</Text>
+          <Text style={styles.text}>Drag me</Text>
         </Animated.View>
+
+        <Animated.View style={[styles.interpolateBox, interpolateAnimatedStyle]} />
       </View>
     );
   }
@@ -115,6 +138,10 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     fontSize: 18
+  },
+  interpolateBox: {
+    width: 100,
+    height: 100
   }
 });
 
